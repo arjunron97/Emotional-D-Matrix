@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Call Mode (Waveform Visualizer)</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+<style>
+.call-container { width: 640px; max-width:95vw; padding:16px; }
+.call-controls { display:flex; flex-direction:column; gap:10px; }
+.control-row { display:flex; gap:10px; align-items:center; }
+.control-row label { width:110px; font-size:0.95rem; }
+.slider { flex:1; }
+
+/* waveform canvas */
+.wave-wrap {
+  margin: 12px 0;
+  background: linear-gradient(180deg,#0f1622,#121826);
+  border-radius: 8px;
+  padding: 8px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+#wave-canvas {
+  width: 100%;
+  height: 140px;
+  border-radius: 6px;
+  background: #061019;
+  display:block;
+}
+
+/* small status */
+.status { text-align:center; color:#cfe0ff; font-weight:600; margin:8px 0; }
+.controls-row { display:flex; gap:8px; align-items:center; justify-content:space-between; }
+</style>
+</head>
+<body>
+<div class="call-container">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+    <button id="back-btn">&larr; Back</button>
+    <h2 style="margin:0;">Call Mode — Voice Only</h2>
+  </div>
+
+  <div id="status" class="status">Ready. Tap to speak.</div>
+
+  <div class="wave-wrap">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="font-size:0.95rem;color:#bfc9e6">Live waveform</div>
+      <div style="font-size:0.85rem;color:#9fb8df">Input (left) • Output (right)</div>
+    </div>
+    <canvas id="wave-canvas"></canvas>
+  </div>
+
+  <div class="call-controls">
+    <div class="control-row">
+      <label for="filter-type">Filter</label>
+      <select id="filter-type" class="slider">
+        <option value="none">None</option>
+        <option value="lowpass">Lowpass</option>
+        <option value="highpass">Highpass</option>
+        <option value="peaking">Peaking</option>
+        <option value="lowshelf">Lowshelf</option>
+        <option value="highshelf">Highshelf</option>
+      </select>
+    </div>
+
+    <div class="control-row">
+      <label for="freq">Frequency (Hz)</label>
+      <input id="freq" class="slider" type="range" min="60" max="8000" value="1200">
+    </div>
+
+    <div class="control-row">
+      <label for="q">Q (bandwidth)</label>
+      <input id="q" class="slider" type="range" min="0.1" max="18" step="0.1" value="1.0">
+    </div>
+
+    <div class="control-row">
+      <label for="gain">Gain (dB)</label>
+      <input id="gain" class="slider" type="range" min="-12" max="12" step="0.5" value="0">
+    </div>
+
+    <div class="controls-row" style="margin-top:8px;">
+      <button id="speak-btn" class="primary">🎙️ Tap to Speak</button>
+      <label style="display:flex;gap:8px;align-items:center;"><input id="auto-listen" type="checkbox"> Auto-listen</label>
+    </div>
+
+    <small style="color:#bfc9e6;">Tip: tune filter and auto-listen for a phone-like flow.</small>
+  </div>
+
+  <div id="hidden-transcript" style="position:absolute;left:-9999px;"></div>
+</div>
+
+<script src="{{ url_for('static', filename='js/call_tts.js') }}"></script>
+</body>
+</html>
