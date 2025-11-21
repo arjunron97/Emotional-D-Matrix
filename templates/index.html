@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Emotion Chatbot — Welcome</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="center-card">
+    <h1>Welcome to Emotion Chatbot</h1>
+
+    <div class="form-row">
+      <input id="name" placeholder="Name" type="text">
+      <input id="age" placeholder="Age" type="number" min="1">
+      <select id="gender">
+        <option value="">Select gender</option>
+        <option>Male</option>
+        <option>Female</option>
+        <option>Other</option>
+        <option>Prefer not to say</option>
+      </select>
+    </div>
+
+    <div class="form-row">
+      <input id="email" placeholder="Email (optional)" type="email">
+      <input id="location" placeholder="Location (optional)" type="text">
+    </div>
+
+    <div class="mode-buttons">
+      <button id="chat-mode-btn" class="primary">Enter Chat Mode</button>
+      <button id="call-mode-btn" class="primary">Enter Call Mode</button>
+    </div>
+
+    <p style="font-size:0.9rem;color:#ccc;margin-top:10px;">Fill the info and choose a mode (Chat or Call).</p>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
+</body>
+</html>
