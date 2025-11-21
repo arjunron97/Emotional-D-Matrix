@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Rate your Chat</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Roboto, "Segoe UI", Arial; background:#0b1220; color:#e6f0ff; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; }
+    .card { background:#0f1a2a; padding:20px; border-radius:10px; width:min(640px,92vw); box-shadow: 0 6px 18px rgba(0,0,0,0.5); }
+    h2 { margin-top:0; }
+    textarea { width:100%; min-height:100px; }
+    .rating { display:flex; gap:8px; }
+    .btn { padding:8px 14px; border-radius:8px; border:none; cursor:pointer; }
+    .primary { background:#3b82f6; color:white; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h2>Quick rating</h2>
+    <p>Thanks for chatting with Ron. Please rate your experience (1 = worst, 5 = best):</p>
+    <div class="rating" id="rating-stars">
+      <button class="btn" data-val="1">1</button>
+      <button class="btn" data-val="2">2</button>
+      <button class="btn" data-val="3">3</button>
+      <button class="btn" data-val="4">4</button>
+      <button class="btn" data-val="5">5</button>
+    </div>
+    <p style="margin-top:8px;">Optional feedback:</p>
+    <textarea id="rating-comment" placeholder="Tell us what worked or how we can improve..."></textarea>
+    <div style="display:flex;gap:8px; margin-top:12px;">
+      <button id="submit-rating" class="btn primary">Submit</button>
+      <a href="/"><button class="btn">Return home</button></a>
+    </div>
+    <div id="status" style="margin-top:12px;"></div>
+  </div>
+
+  <script>
+    const stars = document.querySelectorAll('#rating-stars .btn');
+    let selected = null;
+    stars.forEach(b => {
+      b.addEventListener('click', () => {
+        selected = parseInt(b.dataset.val);
+        stars.forEach(x => x.style.opacity = x === b ? '1' : '0.5');
+      });
+    });
+    document.getElementById('submit-rating').addEventListener('click', async () => {
+      const comment = document.getElementById('rating-comment').value || '';
+      if (!selected) {
+        document.getElementById('status').innerText = 'Please select a rating.';
+        return;
+      }
+      document.getElementById('status').innerText = 'Saving...';
+      try {
+        const res = await fetch('/save_rating', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({rating: selected, comment})
+        });
+        const j = await res.json();
+        if (j.status === 'ok') {
+          document.getElementById('status').innerText = 'Thanks! Rating saved.';
+        } else {
+          document.getElementById('status').innerText = 'Save failed: ' + (j.message || JSON.stringify(j));
+        }
+      } catch (e) {
+        document.getElementById('status').innerText = 'Network error: ' + e;
+      }
+    });
+  </script>
+</body>
+</html>

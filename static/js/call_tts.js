@@ -1,3 +1,4 @@
+// static/js/call_tts.js
 document.addEventListener("DOMContentLoaded", () => {
   const speakBtn = document.getElementById("speak-btn");
   const backBtn = document.getElementById("back-btn");
@@ -13,7 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const canvas = document.getElementById("wave-canvas");
   const ctx = canvas.getContext("2d");
 
-  // Resize canvas to CSS size * devicePixelRatio for crispness
   function resizeCanvas() {
     const rect = canvas.getBoundingClientRect();
     const dpr = window.devicePixelRatio || 1;
@@ -33,10 +33,10 @@ document.addEventListener("DOMContentLoaded", () => {
   let inputAnimationId = null;
   let outputAnimationId = null;
 
-  function setStatus(t){ statusEl.textContent = t; }
+  function setStatus(t){ if(statusEl) statusEl.textContent = t; }
 
   function createFilterNode(ctx){
-    const type = filterTypeEl.value;
+    const type = filterTypeEl ? filterTypeEl.value : "none";
     if(type === "none") return null;
     const f = ctx.createBiquadFilter();
     f.type = type;
@@ -46,31 +46,26 @@ document.addEventListener("DOMContentLoaded", () => {
     return f;
   }
 
-  // Visualization: draw combined canvas showing input (left) and output (right) waveforms
   function drawWaveforms() {
     if (!canvas) return;
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
     ctx.clearRect(0, 0, w, h);
 
-    // divide canvas into left (input) and right (output)
     const half = Math.floor(w / 2);
     const gap = 6;
     const leftW = half - gap;
     const rightW = w - half - gap;
 
-    // background bars
     ctx.fillStyle = "#061019";
     ctx.fillRect(0, 0, leftW, h);
     ctx.fillRect(half + gap, 0, rightW, h);
 
-    // draw labels
     ctx.fillStyle = "#8fb8df";
     ctx.font = "12px sans-serif";
     ctx.fillText("INPUT", 8, 16);
     ctx.fillText("OUTPUT", half + gap + 8, 16);
 
-    // draw input waveform
     if (inputAnalyser) {
       const bufferLength = inputAnalyser.fftSize;
       const data = new Uint8Array(bufferLength);
@@ -89,7 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
       }
       ctx.stroke();
     } else {
-      // placeholder wave for input
       ctx.strokeStyle = "rgba(102,255,153,0.15)";
       ctx.beginPath();
       ctx.moveTo(0, h / 2);
@@ -97,7 +91,6 @@ document.addEventListener("DOMContentLoaded", () => {
       ctx.stroke();
     }
 
-    // draw output waveform
     if (outputAnalyser) {
       const bufferLength = outputAnalyser.fftSize;
       const data = new Uint8Array(bufferLength);
@@ -124,11 +117,9 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // start input (microphone) analyser for live waveform while user speaks
   async function startInputVisualizer() {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    if (inputStreamSource) return; // already started
-
+    if (inputStreamSource) return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
       inputStreamSource = audioCtx.createMediaStreamSource(stream);
@@ -136,7 +127,6 @@ document.addEventListener("DOMContentLoaded", () => {
       inputAnalyser.fftSize = 2048;
       inputStreamSource.connect(inputAnalyser);
 
-      // draw loop
       const tick = () => {
         drawWaveforms();
         inputAnimationId = requestAnimationFrame(tick);
@@ -147,38 +137,29 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  // stop input visualizer (keep media track if needed)
   function stopInputVisualizer() {
     if (inputAnimationId) {
       cancelAnimationFrame(inputAnimationId);
       inputAnimationId = null;
     }
-    // do not stop microphone stream forcibly to avoid interfering with SpeechRecognition;
-    // just disconnect analyser
     if (inputStreamSource && inputAnalyser) {
       try { inputStreamSource.disconnect(); } catch (e) {}
       inputStreamSource = null;
     }
     inputAnalyser = null;
-    drawWaveforms(); // draw placeholder
+    drawWaveforms();
   }
 
-  // play buffer via WebAudio and hook up output analyser for visualization
   async function playArrayBufferAudio(arrayBuffer) {
     if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-
     const decoded = await audioCtx.decodeAudioData(arrayBuffer);
     const src = audioCtx.createBufferSource();
     src.buffer = decoded;
 
-    // create filter based on UI
     const filterNode = createFilterNode(audioCtx);
-
-    // output analyser
     outputAnalyser = audioCtx.createAnalyser();
     outputAnalyser.fftSize = 2048;
 
-    // Connect graph: src -> [filter?] -> analyser -> destination
     if (filterNode) {
       src.connect(filterNode);
       filterNode.connect(outputAnalyser);
@@ -187,7 +168,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     outputAnalyser.connect(audioCtx.destination);
 
-    // start drawing
     const tickOut = () => {
       drawWaveforms();
       outputAnimationId = requestAnimationFrame(tickOut);
@@ -196,12 +176,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     return new Promise(resolve => {
       src.onended = () => {
-        // stop animation
         if (outputAnimationId) {
           cancelAnimationFrame(outputAnimationId);
           outputAnimationId = null;
         }
-        outputAnalyser.disconnect();
+        try { outputAnalyser.disconnect(); } catch (e) {}
         outputAnalyser = null;
         drawWaveforms();
         resolve();
@@ -210,7 +189,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // base64 -> ArrayBuffer
   function base64ToArrayBuffer(b64) {
     const binaryStr = atob(b64);
     const len = binaryStr.length;
@@ -237,13 +215,33 @@ document.addEventListener("DOMContentLoaded", () => {
       setStatus("Playing reply...");
       await playArrayBufferAudio(arrayBuffer);
       setStatus("Ready.");
-    } catch (err) {
-      console.error("Request/Play error:", err);
+    } catch (e) {
+      console.error("Request/Play error:", e);
       setStatus("Error");
     }
   }
 
-  // SpeechRecognition pipeline (front-end)
+  // Start chat on load: call /start_chat and play intro
+  async function startChatOnLoad() {
+    try {
+      setStatus("Connecting...");
+      const resp = await fetch('/start_chat', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({}) });
+      const j = await resp.json();
+      if (j.reply) {
+        setStatus(j.reply);
+        await requestTTSAndPlay(j.reply);
+        if (autoListenCheckbox && autoListenCheckbox.checked) {
+          try { recognition.start(); } catch (e) { console.warn(e); }
+        }
+      } else {
+        setStatus("Ready. Tap to speak.");
+      }
+    } catch (e) {
+      console.error("start_chat failed", e);
+      setStatus("Could not start chat.");
+    }
+  }
+
   const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SpeechRecognition) {
     speakBtn.disabled = true;
@@ -259,7 +257,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   recognition.onstart = () => {
     setStatus("Listening...");
-    // start input visualizer to show mic waveform while user speaks
     startInputVisualizer();
   };
 
@@ -267,7 +264,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const userText = ev.results[0][0].transcript;
     hiddenTranscript.textContent = userText;
     setStatus("Processing...");
-    // stop input visualizer visual loop (keep mic access open but disconnect analyser)
     stopInputVisualizer();
 
     try {
@@ -279,8 +275,14 @@ document.addEventListener("DOMContentLoaded", () => {
       const pj = await p.json();
       const reply = pj.reply || "Sorry, I couldn't process that.";
       await requestTTSAndPlay(reply);
+
+      if (pj.ended) {
+        try { await fetch('/end_chat', { method: 'POST' }); } catch (e) {}
+        window.location.href = '/rating';
+        return;
+      }
+
       if (autoListenCheckbox && autoListenCheckbox.checked) {
-        setStatus("Auto-listen: listening...");
         try { recognition.start(); } catch (e) { console.warn(e); }
       } else {
         setStatus("Ready.");
@@ -292,9 +294,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   recognition.onend = () => {
-    // recognition finished; if we didn't auto-listen reset status
     if (!(autoListenCheckbox && autoListenCheckbox.checked)) setStatus("Ready. Tap to speak.");
-    // ensure input visualizer stopped
     stopInputVisualizer();
   };
 
@@ -310,7 +310,7 @@ document.addEventListener("DOMContentLoaded", () => {
     try { recognition.start(); } catch (e) { console.warn("recognition.start error:", e); }
   });
 
-  // init waves
   drawWaveforms();
   setStatus("Ready. Tap to speak.");
+  startChatOnLoad();
 });
