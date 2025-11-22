@@ -4,6 +4,8 @@
 
 ---
 
+---
+
 ## 🔎 About this project
 **Emotional D-Matrix** is a prototype conversational system whose persona is **Ron** — a friendly, human-like emotional support assistant.  
 Ron combines semantic retrieval from a labeled emotion dataset (GoEmotions) with an LLM to produce grounded, empathic replies. The system supports both typed chat and a voice/call mode with waveform visualization and TTS.
