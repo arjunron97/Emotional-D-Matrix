@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chat Mode</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <button id="back-btn">&larr; Back</button>
+      <h2>Chat Mode</h2>
+    </div>
+
+    <div id="chat-box" class="chat-box"></div>
+
+    <div class="input-mode">
+      <label><input type="radio" name="input-mode" value="text" checked> Text</label>
+      <label><input type="radio" name="input-mode" value="voice"> Voice</label>
+    </div>
+
+    <div class="input-area">
+      <textarea id="user-input" placeholder="Type your message..."></textarea>
+
+      <div class="btn-row">
+        <button id="send-btn">Send</button>
+        <button id="voice-btn">🎙️ Speak</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="{{ url_for('static', filename='js/chat.js') }}"></script>
+</body>
+</html>
