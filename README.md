@@ -1,4 +1,4 @@
-# Emotional-D-Matrix
+# Emotional-D-Matrix - RON
  **Ron — your warm AI emotional support companion**  
 > A retrieval-augmented conversational assistant that listens, validates feelings, and offers short, empathic coping steps. Built with an LLM + vector retrieval over the GoEmotions dataset, Chroma vector store, and a lightweight Flask frontend (text + voice/call mode).
 
