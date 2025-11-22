@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Emotional-D-Matrix Analytics (Local Images)</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Styles for the visualization containers */
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        /* New Style: Container for the back button */
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 3%;
+            max-width: 95%;
+            margin: 0 auto;
+        }
+
+        /* Style for the back button */
+        .back-btn {
+            background-color: #f0f0f0;
+            color: #333;
+            border: 1px solid #ccc;
+            padding: 8px 15px;
+            font-size: 0.9rem;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background-color 0.2s;
+        }
+
+        .back-btn:hover {
+            background-color: #e0e0e0;
+        }
+
+        /* MODIFIED: Container for stacking images vertically */
+        .dashboard-container {
+            display: block; /* Removed flex, now behaves like a standard block element */
+            width: 80%; /* Adjusted width to look better for stacked items */
+            margin: 0 auto; /* Center the container */
+        }
+
+        /* MODIFIED: Each image container now takes full width */
+        .vis-item {
+            width: 100%; /* Take the full width of the dashboard-container */
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-sizing: border-box; /* Includes padding and border in the element's total width and height */
+        }
+
+        .vis-item img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .vis-item h3 {
+            text-align: center;
+            color: #333;
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <a href="{{ url_for('index') }}" class="back-btn">← Go Back</a>
+
+        <h1>Emotional-D-Matrix Dashboard (Static Local Preview)</h1>
+
+        <div style="width: 100px;"></div>
+    </div>
+
+    <div class="dashboard-container">
+
+        <div class="vis-item">
+            <h3>Emotion Analysis</h3>
+            <img src="{{ url_for('static', filename='Images/EI_Analysis.png') }}" alt="Emotional Distribution Chart">
+        </div>
+
+        <div class="vis-item">
+            <h3>EI Biography</h3>
+            <img src="{{ url_for('static', filename='Images/EI_Bio.png') }}" alt="Sentiment Trend Line Chart">
+        </div>
+
+    </div>
+
+</body>
+</html>

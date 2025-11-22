@@ -80,3 +80,26 @@ button { cursor:pointer; border:none; border-radius:8px; padding:10px 12px; back
 /* small helper */
 .sub { color:#bfc9e6; font-size:0.9rem; margin:0; }
 label { color:#dbe6ff; font-size:0.9rem; }
+
+.vis-button-container {
+    margin-top: 25px; /* Add space above the visualization button */
+    padding-top: 15px; /* Add padding for separation */
+    border-top: 1px solid #eee; /* Visual separator line */
+    text-align: center;
+}
+
+/* Optional: Style the secondary button */
+.secondary {
+    background-color: #f0f0f0;
+    color: #333;
+    border: 1px solid #ccc;
+    padding: 10px 20px;
+    font-size: 1rem;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+.secondary:hover {
+    background-color: #e0e0e0;
+}

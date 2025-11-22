@@ -196,6 +196,70 @@ def health():
         info["error"] = str(e)
         return jsonify(info), 500
 
+
+# =========================================================================
+# POWER BI VISUALIZATION ENDPOINTS
+# =========================================================================
+
+# TODO: IMPORTANT! Replace these placeholders with your actual published report details.
+# You find these IDs in the URL of your report in the Power BI Service (app.powerbi.com)
+POWERBI_WORKSPACE_ID = os.environ.get(
+    "POWERBI_WORKSPACE_ID",
+    "6eb2f183-ab24-4c30-85bc-89aec69113ec" # <-- UPDATED
+)
+POWERBI_REPORT_ID = os.environ.get(
+    "POWERBI_REPORT_ID",
+    "78445c6bc17ace0905b8" # <-- UPDATED
+)
+POWERBI_EMBED_URL_BASE = "https://app.powerbi.com/reportEmbed?reportId="
+
+
+@app.route("/dashboard")
+def dashboard():
+    """
+    Renders the HTML page that will host the Power BI visualization.
+    Assumes 'visualization.html' exists in the 'templates' folder.
+    """
+    return render_template("visualization.html")
+
+
+@app.route("/get_powerbi_embed_config", methods=["GET"])
+def get_embed_config():
+    """
+    API endpoint that the front-end JavaScript calls to get the embed token and details.
+
+     Security Note: Generating the embed token MUST be done securely on the server.
+    """
+
+    # ----------------------------------------------------------------------
+    #  YOUR SECURE TOKEN GENERATION LOGIC GOES HERE
+    # You must call an external function/library to get a valid, temporary
+    # access token using your Azure credentials (e.g., Service Principal).
+    #
+    # Example function call:
+    # try:
+    #    access_token = generate_powerbi_embed_token(POWERBI_REPORT_ID, POWERBI_WORKSPACE_ID)
+    # except Exception:
+    #    return jsonify({"status": "error", "message": "Failed to get token from Power BI API"}), 500
+    # ----------------------------------------------------------------------
+
+    # --- MOCK / PLACEHOLDER DATA (You must replace this with real logic) ---
+    if POWERBI_REPORT_ID == "YOUR_POWER_BI_REPORT_ID":
+        # Return a non-functional mock token if environment variables aren't set
+        mock_token = "PLACEHOLDER_TOKEN_REQUIRES_SERVER_IMPLEMENTATION"
+    else:
+        # If IDs are set, use a placeholder but indicate server work is needed
+        mock_token = "SERVER_TOKEN_GENERATION_REQUIRED"
+
+    embed_url = f"{POWERBI_EMBED_URL_BASE}{POWERBI_REPORT_ID}"
+
+    return jsonify({
+        "status": "ok",
+        "reportId": POWERBI_REPORT_ID,
+        "embedUrl": embed_url,
+        "accessToken": mock_token
+    })
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
