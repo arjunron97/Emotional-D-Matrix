@@ -1,6 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
   const chatBtn = document.getElementById("chat-mode-btn");
   const callBtn = document.getElementById("call-mode-btn");
+  const visBtn = document.getElementById("vis-mode-btn");
 
   function gatherUserInfo() {
     const name = document.getElementById("name").value.trim();
@@ -39,6 +40,19 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Attach event listeners
   chatBtn.addEventListener("click", () => saveAndGo("chat"));
   callBtn.addEventListener("click", () => saveAndGo("call"));
+
+  // Listener for Visualization Page
+  if (visBtn) {
+    visBtn.addEventListener("click", () => {
+        console.log("Redirecting to Dashboard...");
+        // This is the line that should redirect the user.
+        window.location.href = "/dashboard";
+    });
+  } else {
+    // If you see this in the console, your HTML is missing the button ID.
+    console.error("The visualization button (ID: vis-mode-btn) was not found in the HTML.");
+  }
 });

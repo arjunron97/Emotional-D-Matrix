@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Emotion Chatbot — Welcome</title>
+  <title>Emotion Chatbot - Welcome</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -14,7 +14,7 @@
       <input id="name" placeholder="Name" type="text">
       <input id="age" placeholder="Age" type="number" min="1">
       <select id="gender">
-        <option value="">Select gender</option>
+        <option value="">Gender</option>
         <option>Male</option>
         <option>Female</option>
         <option>Other</option>
@@ -33,6 +33,11 @@
     </div>
 
     <p style="font-size:0.9rem;color:#ccc;margin-top:10px;">Fill the info and choose a mode (Chat or Call).</p>
+
+    <div class="vis-button-container">
+      <button id="vis-mode-btn" class="secondary">View Dashboard Analytics</button>
+    </div>
+
   </div>
 
   <script src="{{ url_for('static', filename='js/landing.js') }}"></script>
